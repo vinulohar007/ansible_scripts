@@ -1,0 +1,20 @@
+---
+- name: Install httpd
+  hosts: mgmt
+  become: true
+
+  tasks:
+  - name: Install httpd
+    yum:
+      name: httpd
+      state: present
+- name: (Enable it on System Boot)
+service: name=httpd enabled=yes
+
+notify:
+- start apache
+
+handlers:
+- name: Start service httpd, if not running
+  service: name:httpd   state:started
+

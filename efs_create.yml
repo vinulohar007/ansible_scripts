@@ -1,0 +1,36 @@
+---
+ - hosts: mgmt
+   vars:
+    aws_profile: default
+    nfs_package: nfs-utils # nfs-utils on RHEL/CentOS/Amazon Linux
+    efs_mount_dir: /test_efs
+   tasks:   
+    - name: Ensure NFS is installed.
+      yum: "name={{ nfs_package }} state=installed"
+    - name: Ensure mount directory exists.
+      file:
+        path: "{{ efs_mount_dir }}"
+        state: directory
+        mode: 0755
+    - efs: 
+       name: TestEFS 
+       tags: 
+        name: myTestEFS  
+        purpose: file-storage
+       region: eu-central-1 
+       state: present
+       validate_certs: no 
+       targets: 
+        - subnet_id: subnet-6f5c3107
+          security_groups: [ "sg-b95a62d4" ]
+       wait: yes 
+       wait_timeout: 300 
+      register: mount_point
+ 
+    - name: Ensure EFS volume is mounted.
+      mount:
+       name: "{{ efs_mount_dir }}"
+       src: "{{ mount_point }}:/"
+       fstype: nfs4
+       opts: nfsvers=4.1
+       state: mounted

@@ -1,0 +1,43 @@
+ - hosts: mgmt
+   vars:
+     aws_profile: default
+     aws_region: eu-central-1
+    # nfs_package: nfs-common # nfs-utils on RHEL/CentOS/Amazon Linux
+     efs_file_system_id: fs-08ee1151
+     efs_mount_dir: /test_efs
+#    aws_profile: default
+#    nfs_package: nfs-utils # nfs-utils on RHEL/CentOS/Amazon Linux
+#    efs_mount_dir: /test_efs
+   tasks: 
+    - efs_facts:
+       tags:
+        name: myTestEFS
+       targets:
+       - subnet_id: subnet-6f5c3107
+         security_groups: [ "sg-b95a62d4" ]
+      register: mount_point
+   # - debug: var=mount_point
+#    - name: Ensure EFS volume is mounted.
+#      mount:
+#       path: /test_efs
+#       src: "{{ mount_point }}"
+#       fstype: nfs4
+#       opts: nfsvers=4.1
+#       state: mounted 
+#
+    - name: Get current AZ from AWS.
+      uri:
+        url: http://169.254.169.254/latest/meta-data/placement/availability-zone
+        return_content: yes
+      register: aws_current_az
+
+    - name: Ensure EFS volume is mounted.
+      mount:
+        path: "{{ efs_mount_dir }}"
+        src: fs-08ee1151.efs.eu-central-1.amazonaws.com:/
+        fstype: nfs4
+        opts: nfsvers=4.1
+        state: unmounted
+
+
+

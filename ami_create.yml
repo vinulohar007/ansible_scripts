@@ -1,0 +1,5 @@
+---
+ - hosts: mgmt
+   tasks:
+   - name: create ami image
+     ec2_ami: instance_id=i-08b34e8acaa342f33 description=centos_26_apr_18_testimage name=centos_26_apr_18_testimage no_reboot=yes state=present delete_snapshot=yes region=eu-central-1

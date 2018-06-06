@@ -1,0 +1,5 @@
+---
+ - hosts: mgmt
+   tasks:
+   - name: copy the files from source to destination
+     copy: src=/etc/ansible/playbook/ping.yml dest=/root/
